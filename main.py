@@ -6,7 +6,8 @@ import os
 
 app = FastAPI()
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
+# Новый клиент OpenAI для версий openai >= 1.0.0
+client = openai.OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
 
 app.add_middleware(
     CORSMiddleware,
@@ -22,7 +23,7 @@ async def chat(request: Request):
     user_message = data.get("message", "")
 
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "Ты AI-ассистент по финграмотности и кредитам. Отвечай чётко и понятно."},
