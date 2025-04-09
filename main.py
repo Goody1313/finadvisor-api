@@ -20,27 +20,26 @@ app.add_middleware(
 async def chat(request: Request):
     data = await request.json()
     messages = data.get("messages", [])
-    temperature = data.get("temperature", 0.5)
+    temperature = data.get("temperature", 0.4)
     max_tokens = data.get("max_tokens", 300)
 
-    # Гарантируем наличие system prompt
-    system_message = {
+    system_prompt = {
         "role": "system",
         "content": (
-            "Ты — AI-ассистент по финансовой грамотности. "
-            "Объясняй просто и коротко, желательно в пределах Казахстана. "
-            "Всегда стремись помочь пользователю сократить переплату, понять ставку и принять выгодное решение. "
-            "Если вопрос не по теме — вежливо уточни."
+            "Ты — AI-ассистент по финансовой грамотности и микрокредитам в Казахстане. "
+            "Говори кратко, по делу, как опытный консультант. "
+            "1. Всегда сначала оценивай процент, переплату, а затем рассчитывай ГЭСВ (годовую эффективную ставку). "
+            "2. Если данных не хватает (сумма, срок, ставка) — запроси их. "
+            "3. Обязательно предложи, как выгодно погасить кредит: досрочно, ежемесячно, или рефинансировать. "
+            "4. Если условия слишком дорогие — удивляйся! Используй эмоции (например: «офигеть», «это тревожно», «до добра не доведёт»), но не переигрывай. "
+            "Добавляй emoji при необходимости."
         )
     }
-
-    # Объединяем system + последние 3 сообщения
-    history = [system_message] + messages[-6:]
 
     try:
         response = client.chat.completions.create(
             model="gpt-3.5-turbo",
-            messages=history,
+            messages=[system_prompt] + messages,
             temperature=temperature,
             max_tokens=max_tokens
         )
